@@ -2,7 +2,7 @@
 # various thicknesses of FeCrAl and SiC.
 
 import numpy as np
-import cPickle as pickle 
+import pickle 
 import time
 
 from nrm import NRM
@@ -36,7 +36,7 @@ def run() :
     te = time.time()
     for i in range(num_thick):    
     
-        print 'thickness = %f micron' % thick[i]
+        print('thickness = {:.3f} micron'.format(thick[i]))
     
         # FeCrAl
         p['power_share'] = 'equal'
@@ -60,9 +60,9 @@ def run() :
         B_c_SiC[1, i] = B[-1]/len(T_F)
     te = time.time() - te
     
-    print "elapsed time: %f seconds" % te
+    print("elapsed time: {:.3f} seconds".format(te))
     
     pickle.dump({'thick':thick, 'B_c_FeCrAl': B_c_FeCrAl, 'B_c_SiC': B_c_SiC},\
-                open('example_2.p', 'w'))
+                open('example_2.p', 'wb'))
 
 run()

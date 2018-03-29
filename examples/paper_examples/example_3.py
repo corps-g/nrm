@@ -2,7 +2,7 @@
 # various thicknesses of FeCrAl and SiC.
 
 import scipy as sp
-import cPickle as pickle 
+import pickle 
 import time
 
 from nrm import NRM
@@ -60,6 +60,6 @@ def run() :
                  'PPF_FeCrAl': PPF_FeCrAl,
                  'T_F_SiC': T_F_SiC,
                  'T_C_SiC': T_C_SiC,
-                 'PPF_SiC': PPF_SiC}, open('example_3.p', 'w'))
+                 'PPF_SiC': PPF_SiC}, open('example_3.p', 'wb'))
 
 run()

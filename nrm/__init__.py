@@ -1,2 +1,2 @@
-from nrm import NRM
-import default_models
+from .nrm import NRM
+from . import default_models

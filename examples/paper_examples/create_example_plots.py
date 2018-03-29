@@ -5,19 +5,35 @@
 
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+# Many of these are set to reproduce MPL v1x-style plots that were in the
+# published paper (for better or worse).
+mpl.rcParams['figure.figsize'] = [8.0, 6.0]
 mpl.rcParams['figure.autolayout'] = True
 mpl.rcParams['font.family'] = 'serif'
 mpl.rcParams['axes.labelsize'] = 20
 mpl.rcParams['axes.titlesize'] = 20
+mpl.rcParams['axes.autolimit_mode'] = 'round_numbers'
+mpl.rcParams['axes.xmargin'] = 0
+mpl.rcParams['axes.ymargin'] = 0
 mpl.rcParams['ytick.labelsize'] = 16
 mpl.rcParams['xtick.labelsize'] = 16
 mpl.rcParams['ytick.labelsize'] = 16
 mpl.rcParams['xtick.direction'] = 'out'
+mpl.rcParams['xtick.top'] = True
 mpl.rcParams['ytick.direction'] = 'out'
+mpl.rcParams['ytick.right'] = True
 mpl.rcParams['legend.fontsize'] = 16
 mpl.rcParams['legend.numpoints'] = 1
+mpl.rcParams['legend.fancybox'] = False
+mpl.rcParams['legend.framealpha'] = None
+mpl.rcParams['legend.edgecolor'] = 'inherit'
+mpl.rcParams['lines.linewidth'] = 1.0
+mpl.rcParams['lines.dashed_pattern'] = [6, 6]
+mpl.rcParams['lines.dashdot_pattern'] = [3, 5, 1, 5]
+mpl.rcParams['lines.dotted_pattern'] = [1, 3]
+mpl.rcParams['lines.scale_dashes'] = False
 
-import cPickle as pickle
+import pickle
 import numpy as np
 
 dash_dot_dot = [8, 4, 2, 4, 2, 4]
@@ -25,7 +41,7 @@ long_dash = [16, 4]
 
 # example 1 -------------------------------------------------------------------#
 plt.clf()
-data = pickle.load(open('example_1.p','r'))
+data = pickle.load(open('example_1.p','rb'))
 B = data['B']
 k_inf_Zr4 = data['k_inf_Zr4']
 k_inf_FeCrAl_100 = data['k_inf_FeCrAl_100']
@@ -66,7 +82,7 @@ plt.legend(['FeCrAl, 100 $\mu$m',
 plt.savefig('example_1b.pdf')
 
 # example 2 -------------------------------------------------------------------#
-data = pickle.load(open('example_2.p', 'r'))
+data = pickle.load(open('example_2.p', 'rb'))
 t = data['thick']
 B_c_FeCrAl = data['B_c_FeCrAl']
 B_c_SiC = data['B_c_SiC']
@@ -82,7 +98,7 @@ plt.legend(['FeCrAl, equal', 'FeCrAl, unequal',
 plt.savefig('example_2.pdf')
 
 # example 3 -------------------------------------------------------------------#
-data = pickle.load(open('example_3.p', 'r'))
+data = pickle.load(open('example_3.p', 'rb'))
 t = data['thick']
 T_F = np.zeros((2, 3, len(t)))
 T_C = np.zeros((2, 3, len(t)))

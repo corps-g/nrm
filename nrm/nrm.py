@@ -1,6 +1,6 @@
 import scipy as sp
 from scipy.optimize import root, fsolve
-import default_models
+from . import default_models
 
 class NRM(object) :
     """ 
@@ -50,18 +50,16 @@ class NRM(object) :
         FINISH ME.
         """
 
-        T_F_old = 1.0*T_F;
-        T_C_old = 1.0*T_C;
-        for iteration in range(100) :
+        T_F_old = 1.0*T_F
+        T_C_old = 1.0*T_C
+        for iteration in range(100):
             B, ppf = self.compute_cycle(T_F_old, T_C_old)
             T_F, T_C = self.compute_temperatures(B, ppf, T_F_old, T_C_old, 0.0)
             e = max([max(T_F-T_F_old), max(T_C-T_C_old)])
-            if e < 0.01 :
-                print "converged in %i iterations with error %f" % \
-                    (iteration, e)
+            if e < 0.01:
                 break            
-            T_F_old = 1.0*T_F;
-            T_C_old = 1.0*T_C;
+            T_F_old = 1.0*T_F
+            T_C_old = 1.0*T_C
         return B, ppf, T_F, T_C
     
     def compute_cycle(self, T_F, T_C) :

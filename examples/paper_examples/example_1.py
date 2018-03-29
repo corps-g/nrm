@@ -1,7 +1,7 @@
 # This example shows k-inf as a function of burnup for several 
 # cladding configurations.
 import scipy as sp
-import cPickle as pickle
+import pickle
 
 from atf_models import rho
 
@@ -44,4 +44,4 @@ pickle.dump({'B': B,
              'rho_FeCrAl_100': rho_FeCrAl_100, 
              'rho_FeCrAl_300': rho_FeCrAl_300, 
              'rho_SiC_100': rho_SiC_100,              
-             'rho_SiC_300': rho_SiC_300}, open('example_1.p', 'w'))
+             'rho_SiC_300': rho_SiC_300}, open('example_1.p', 'wb'))
