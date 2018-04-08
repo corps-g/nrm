@@ -1,13 +1,13 @@
 """
 Defines data models for neutronics and thermal-hydraulics analysis of 
 a standard WH-style, 17x17 assembly with no burnable absorber.  Note,
-all dimensions come from 
+all default dimensions come from 
    K. Smith, et al., “Benchmarks for Quantifying Fuel Reactivity Depletion 
    Uncertainty,” Electric Power Research Institute (EPRI), Palo Alto, 
    CA, Technical Report Number 1022909, (2011).
 """
 
-from nrm.default_models import k_fuel, h_gap
+from nrm.default_models import k_cladding, k_fuel, h_gap
 import numpy as np
 import os
 
@@ -16,9 +16,9 @@ inp_template = \
 PDE 104.5 'KWL'
 PRE 155
 TFU={0:.2f} TMO={1:.2f} BOR={2:.2f}
-PWR 17 1.2598 21.5036
-FUE 1,10.34/{3:.2f}
-PIN 1 0.4096 0.4180 0.4750 /'1' 'AIR','CAN'
+PWR 17 {3:.6f} {4:.6f}
+FUE 1,10.34/{5:.6f}
+PIN 1 {6:.6f} {7:.6f} {8:.6f} /'1' 'AIR','CAN'
 PIN 2 0.5610 0.6120 / 'MOD' 'BOX'
 PIN 3 0.5610 0.6120 / 'MOD' 'BOX'
 LPI
@@ -34,16 +34,16 @@ LPI
 DEP -60
 STA
 COE ,, -60 
-TFU {4:.2f}
-TMO {5:.2f}
-BOR {6:.2f}
+TFU {9:.2f}
+TMO {10:.2f}
+BOR {11:.2f}
 STA
 END
 """
 
 class CASMO4:
     
-    def __init__(self, T_F0, T_C0, C_B0, e = 4.0, degree=1, run=True):
+    def __init__(self, p, degree=1, run=True):
         """ Initialize the CASMO4 model generator.
         
         Given historical fuel temperature, coolant temperature, and 
@@ -52,25 +52,48 @@ class CASMO4:
         expansion to evaluate rho and M2 as functions of T_F, T_C, and C_B.
         
         Inputs:
-            T_F0 : float
-                Historical fuel temperature
-            T_C0 : float
-                Historical coolant temperature   
-            C_B0 : float
-                Historical boron concentration
-               e : float
-                Fuel U-235 enrichment (mass %)
-          degree : int
+            p : dict
+                Parameter dictionary.  May include these keys (but defaults
+                are defined):
+                    fuel_radius: float
+                        Fuel radius (cm)
+                    assembly_width: float
+                        Assembly pitch (cm)
+                    cladding_inner_radius: float
+                        Cladding inner radius (cm)
+                    cladding_outer_radius: float
+                        Cladding outer radius (cm)
+                    T_F0 : float
+                        Historical/nominal fuel temperature (K)
+                    T_C0 : float
+                        Historical/nominal coolant temperature (K)
+                    C_B0 : float
+                        Historical/nominal boron concentration (ppm)
+                    enrichment : float
+                        Fuel U-235 enrichment (mass %)
+            degree : int
                 Degree of polynomial used to represent B dependence of
                 rho, M2, and their derivatives with respect to T_F, T_C, and
                 B_C.
-             run : bool
+            run : bool
                 If True, the CASMO4 calculation will be performed.  This is
                 the default.  By setting it to false, the existing CASMO4
                 output will be used if it exists.  
         """        
         
-        assert 0 < e <= 5
+        # Extract parameters from dictionary.  Defaults are from the EPRI
+        # report referenced above.
+        pin_pitch = p.get('pin_pitch', 1.2598)
+        assembly_pitch = p.get('assembly_pitch', 21.5036)
+        r_f = p.get('fuel_radius', 0.4096)
+        r_ci = p.get('cladding_inner_radius', 0.4180)
+        r_co = p.get('cladding_outer_radius', 0.4750)
+        e = p.get('enrichment', 4.0)
+        T_F0 = p.get('T_F0', 900.0)
+        T_C0 = p.get('T_C0', 580.0) 
+        C_B0 = p.get('C_B0', 900.0)
+
+        assert 0 < e <= 5, "Invalid enrichment!"
         
         delta_T_F = 50.0
         delta_T_C = 20.0
@@ -80,10 +103,15 @@ class CASMO4:
         T_C = T_C0 + delta_T_C
         C_B = C_B0 + delta_C_B
         
+        # Produce unique identifier from inputs
+        
+        
         # Make input
         with open('casmo.inp', 'w') as f:
-            
-            f.write(inp_template.format(T_F0, T_C0, C_B0, e, T_F, T_C, C_B))
+            f.write(inp_template.format(T_F0, T_C0, C_B0,  
+                                        pin_pitch, assembly_pitch,
+                                        e, r_f, r_ci, r_co,
+                                        T_F, T_C, C_B))
         
         # Run CASMO4, assuming in your path, and overwrite existing files
         try:
@@ -215,7 +243,19 @@ if __name__ == '__main__':
     
     import matplotlib.pyplot as plt
     
-    c = CASMO4(900.0, 580.0, 900.0, 4.0, degree=1, run=False)
+    
+    # parameter dictionary
+    p = {}                 
+    p['assembly_width'] = 21.5036
+    p['pin_pitch'] = 1.2598
+    p['fuel_radius'] = 0.4096
+    p['cladding_inner_radius'] = 0.4180
+    p['cladding_outer_radius'] = 0.4750
+    p['T_F0'] = 900.0 # nominal fuel temperature (K)
+    p['T_C0'] = 580.0 # nominal coolant temperatur (K)
+    p['C_B0'] = 900.0 # nominal boron concentration (ppm)
+
+    c = CASMO4(p, degree=2, run=True)
  
     # fuel temperature coefficient
     B = np.linspace(0, 60)
