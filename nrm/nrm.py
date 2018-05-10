@@ -33,6 +33,11 @@ class NRM(object) :
         self.k_cladding = kwargs.get('k_cladding', default_models.k_cladding) 
         self.h_gap = kwargs.get('h_gap', default_models.h_gap) 
 
+        # other parameters
+        self.mdot = kwargs.get('mdot', 88.0)
+        self.cp = kwargs.get('cp', 5500.0)
+        self.h = kwargs.get('h', 30000.0)
+        self.T_inlet = kwargs.get('T_inlet', 560.0)
         
     def solve(self, T_F, T_C) :
         """ Solve the coupled neutronics and thermal-hydraulics equations.
@@ -87,14 +92,7 @@ class NRM(object) :
         H = self.p['active_height']/100.0
         # extrapolation length, m
         #delta_H = 0.0
-        # mass flow rate per assembly, kg/s
-        mdot = 88.03
-        # specific heat of coolant, J/kg-K
-        cp = 5500.0
-        # inlet temperature, K
-        T_inlet = 563.0
-        # heat transfer coefficient, W/m^2.s
-        h = 30000.0
+ 
         
         T_F = 1*T_F_old
         T_C = 1*T_C_old        
@@ -105,7 +103,7 @@ class NRM(object) :
             #qp_max = (sp.pi/2.0/(H+2.0*delta_H)) / \
             #         sp.sin(sp.pi/(2.0*H+4.0*delta_H))
             # axially-averaged moderator temperature
-            T_C[i] = T_inlet + 0.5*q[i]/mdot/cp
+            T_C[i] = self.T_inlet + 0.5*q[i]/self.mdot/self.cp
             # cladding thermal conductivity, W/m.K, assuming temperature is 
             # equal to the 0.12*T_F + 0.88*T_C, which is consistent with the 
             # lattice physics modeling
@@ -116,7 +114,7 @@ class NRM(object) :
             h_g = self.h_gap(self.p, B[i], T_g)
             # effective non-fuel thermal conductivity, W/m.K
             k_NF = 1.0 / ((0.5/sp.pi) * (1.0/h_g/r_g + \
-                                         sp.log(r_co/r_ci)/k_c + 1.0/r_co/h))
+                                         sp.log(r_co/r_ci)/k_c + 1.0/r_co/self.h))
             # fuel thermal conductivity, W/m.K
             k_F = self.k_fuel(self.p, B[i], T_F[i])
             # average pin linear heat generation rate, W/m
