@@ -43,7 +43,7 @@ END
 
 class CASMO4:
     
-    def __init__(self, p, degree=1, run=True):
+    def __init__(self, p, degree=1, run=True, casmo_iname='casmo.inp'):
         """ Initialize the CASMO4 model generator.
         
         Given historical fuel temperature, coolant temperature, and 
@@ -105,9 +105,9 @@ class CASMO4:
         
         # Produce unique identifier from inputs
         
-        
+        casmo_lname = casmo_iname.replace('.inp', '')+'.log'
         # Make input
-        with open('casmo.inp', 'w') as f:
+        with open(casmo_iname, 'w') as f:
             f.write(inp_template.format(T_F0, T_C0, C_B0,  
                                         pin_pitch, assembly_pitch,
                                         e, r_f, r_ci, r_co,
@@ -115,13 +115,15 @@ class CASMO4:
         
         # Run CASMO4, assuming in your path, and overwrite existing files
         try:
-            if run or not os.path.isfile('casmo.log'):
-                os.system('casmo4 -k casmo.inp')
+            if run or not os.path.isfile(casmo_lname):
+                print("RUNNING CASMO")
+                os.system('casmo4 -k {}'.format(casmo_iname))
+            
         except:
             print("running CASMO4 was unsuccessful!")
             
         # Read the output
-        with open('casmo.log', 'r') as f:      
+        with open(casmo_lname, 'r') as f:      
             lines = f.readlines()      
             starts = {'base': 0, 'T_F': 0, 'T_C': 0, 'C_B': 0}
             for i in range(len(lines)):
