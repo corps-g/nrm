@@ -6,7 +6,7 @@ import pickle
 import time
 
 from nrm import NRM
-from casmo4_model import CASMO4
+from nrm.casmo4_model import CASMO4
 from nrm.default_models import k_cladding, k_fuel, h_gap
 
 # parameter dictionary
