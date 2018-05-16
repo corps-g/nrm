@@ -43,7 +43,8 @@ END
 
 class CASMO4:
     
-    def __init__(self, p, degree=1, run=True, casmo_iname='casmo.inp'):
+    def __init__(self, p, degree=1, run=True, casmo_iname='casmo.inp',
+                 inp_tmpl=inp_template):
         """ Initialize the CASMO4 model generator.
         
         Given historical fuel temperature, coolant temperature, and 
@@ -79,6 +80,11 @@ class CASMO4:
                 If True, the CASMO4 calculation will be performed.  This is
                 the default.  By setting it to false, the existing CASMO4
                 output will be used if it exists.  
+            casmo_iname : str
+                Name of the CASMO-4 input file name.  This allows multiple
+                cases to be run without overwriting the results.
+            inp_tmpl : str
+                String template to use to generate CASMO-4 model.
         """        
         
         # Extract parameters from dictionary.  Defaults are from the EPRI
@@ -93,8 +99,9 @@ class CASMO4:
         T_C0 = p.get('T_C0', 580.0) 
         C_B0 = p.get('C_B0', 900.0)
 
-        assert 0 < e <= 5, "Invalid enrichment!"
-        
+        assert 0 < e, "Negative enrichment!"
+        if e > 5:
+            print("WARNING: You sure you want >5% enrichment??")
         delta_T_F = 50.0
         delta_T_C = 20.0
         delta_C_B = 50.0
@@ -108,7 +115,7 @@ class CASMO4:
         casmo_lname = casmo_iname.replace('.inp', '')+'.log'
         # Make input
         with open(casmo_iname, 'w') as f:
-            f.write(inp_template.format(T_F0, T_C0, C_B0,  
+            f.write(inp_tmpl.format(T_F0, T_C0, C_B0,  
                                         pin_pitch, assembly_pitch,
                                         e, r_f, r_ci, r_co,
                                         T_F, T_C, C_B))
